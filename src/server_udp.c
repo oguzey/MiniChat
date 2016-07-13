@@ -311,7 +311,7 @@ int main(int argc, char** argv)
            "\n\t1) _who"
            "\n\t2) _kill <name>"
            "\n\t3) _shutdown\n");
-    _s_server_socket = SockUdp(NULL, server_port);
+    _s_server_socket = udp_socket_create(NULL, server_port);
     _s_runing = 1;
     while(_s_runing)
 	{

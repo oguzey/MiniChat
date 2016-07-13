@@ -170,8 +170,8 @@ int main (int argc, char **argv)
                     } else if (!data) {
                         printf("Bad arguments for _connect.\n");
                     } else {
-                        _s_client_sock = SockUdp(NULL, 0);
-                        _s_server_addr = CreerSockAddr(data->host, data->port);
+                        _s_client_sock = udp_socket_create(NULL, 0);
+                        _s_server_addr = address_create(data->host, data->port);
                         _s_connected = 1;
                         send_conn_data(data->name);
                         printf("Client was connected to '%s:%d'\n", data->host, data->port);

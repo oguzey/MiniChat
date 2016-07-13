@@ -342,7 +342,7 @@ int main(int argc, char** argv)
     if (argc < 2 || (server_port = atoi (argv[1])) == 0) {
         server_port = SERVER_PORT;
     }
-    server_socket = SockTcp(NULL, server_port);
+    server_socket = tcp_socket_create(NULL, server_port);
     if (listen(server_socket, MAX_AMOUNT_CLIENTS) != 0) {
         printf("Could not listen server socket '%d'. Error was '%d'\n"
                                     , server_socket, errno);

@@ -8,10 +8,10 @@ typedef enum {
     UDP
 } ConnectionType;
 
-struct sockaddr_in *CreerSockAddr(char *, int);
-int SockUdp(char *, int);
-int SockTcp(char *nom, int numport);
-int connect_tcp_socket(int fd, struct sockaddr_in *addr);
+struct sockaddr_in *address_create(char *, int);
+int udp_socket_create(char *, int);
+int tcp_socket_create(char *nom, int numport);
+int tcp_socket_connect(int fd, struct sockaddr_in *addr);
 
 #endif // WRSOCK_H
 

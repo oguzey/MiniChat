@@ -185,9 +185,9 @@ int main (int argc, char **argv)
                     } else if (!data) {
                         printf("Bad arguments for _connect.\n");
                     } else {
-                        _s_client_sock = SockTcp(NULL, 0);
-                        _s_server_addr = CreerSockAddr(data->host, data->port);
-                        if (!connect_tcp_socket(_s_client_sock, _s_server_addr)
+                        _s_client_sock = tcp_socket_create(NULL, 0);
+                        _s_server_addr = address_create(data->host, data->port);
+                        if (!tcp_socket_connect(_s_client_sock, _s_server_addr)
                                     && !send_conn_data(data->name)) {
                             _s_connected = 1;
                             printf("Client was connected to '%s:%d'\n", data->host, data->port);
