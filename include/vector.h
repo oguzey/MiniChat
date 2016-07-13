@@ -14,23 +14,23 @@ typedef void actions(void *item, void *data);
 #define VECTOR_TOTAL(vec) vector_total(&vec)
 #define VECTOR_FREE(vec) vector_free(&vec)
 
-typedef struct vector {
+typedef struct Vector {
     void **items;
     int capacity;
     int total;
-} vector;
+} Vector;
 
-vector* vector_create(void);
-int vector_total(vector *);
-static void vector_resize(vector *, int);
-void vector_add(vector *, void *);
-void vector_set(vector *, int, void *);
-void *vector_get(vector *, int);
-void* vector_delete(vector *, int);
-int vector_is_contains(vector *v, void *pattern, cmp *cmp_func);
-void* vector_delete_first_equal(vector *v, void *pattern, cmp *cmp_func);
-void* vector_get_first_equal(vector *v, void *pattern, cmp *cmp_func);
-void vector_foreach(vector *v, void *data, actions *func);
-void vector_free(vector *);
+Vector* vector_create(void);
+int vector_total(Vector *);
+static void vector_resize(Vector *, int);
+void vector_add(Vector *, void *);
+void vector_set(Vector *, int, void *);
+void *vector_get(Vector *, int);
+void* vector_delete(Vector *, int);
+int vector_is_contains(Vector *v, void *pattern, cmp *cmp_func);
+void* vector_delete_first_equal(Vector *v, void *pattern, cmp *cmp_func);
+void* vector_get_first_equal(Vector *v, void *pattern, cmp *cmp_func);
+void vector_foreach(Vector *v, void *data, actions *func);
+void vector_free(Vector *);
 
 #endif // VECTOR_H

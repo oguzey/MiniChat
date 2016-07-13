@@ -10,6 +10,7 @@
 */
 #include <sys/types.h> /* See NOTES */
 #include <sys/socket.h>
+#include <sys/select.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <netdb.h>

@@ -8,7 +8,8 @@ src/client_udp.c
 src/server_tcp.c
 src/server_udp.c
 src/vector.c
-src/wrsock_client_tcp.c
 src/wrsock_client_udp.c
 src/wrsock_server_tcp.c
 src/wrsock_server_udp.c
+include/wrsock.h
+src/wrsock.c

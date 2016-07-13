@@ -1,15 +1,6 @@
-/* $Id: client.c,v 1.2 2000/07/06 09:51:59 pfares Exp $
-* $Log: client.c,v $
-* Revision 1.2 2000/07/06 09:51:59 pfares
-* Amélioration du protocole entre client et serveur (recupération du
-* port client par recvfrom
-*
-* Revision 1.1 2000/07/05 20:51:16 root
-* Initial revision
-*
-*/
-#include <sys/types.h> /* See NOTES */
+#include <sys/types.h>
 #include <sys/socket.h>
+
 #include <unistd.h>
 #include <stdlib.h>
 #include <netdb.h>
@@ -17,6 +8,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <errno.h>
+
 #include "wrsock.h"
 
 #define BUF_SIZE 512

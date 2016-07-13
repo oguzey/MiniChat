@@ -1,18 +1,6 @@
-/*
-$Id: serveur.c,v 1.2 2000/07/06 09:52:41 pfares Exp $
-$Log: serveur.c,v $
-Revision 1.2 2000/07/06 09:52:41 pfares
-Amélioration du protocole entre client et serveur (recupération du
-port client par recvfrom
-.
-Revision 1.1 2000/07/05 20:52:04 root
-Initial revision
-* Revision 1.2 1997/03/22 06:15:04 pascal
-* Ajout des controles et entete
-*
-*/
-#include <sys/types.h> /* See NOTES */
+#include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/select.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <netdb.h>
@@ -54,7 +42,7 @@ static void collect_all_names(void *item, void *names);
 static int send_msg(Client *a_client, char *a_message);
 
 static volatile int _s_runing = -1;
-static vector *_s_clients = NULL;
+static Vector *_s_clients = NULL;
 
 static Client* client_create(void)
 {

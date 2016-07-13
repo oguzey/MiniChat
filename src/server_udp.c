@@ -13,6 +13,7 @@ Initial revision
 */
 #include <sys/types.h> /* See NOTES */
 #include <sys/socket.h>
+#include <sys/select.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <netdb.h>
@@ -49,7 +50,7 @@ static void collect_all_names(void *item, void *names);
 static void send_msg(char *a_message, struct sockaddr_in *a_addr);
 
 static volatile int _s_runing = -1;
-static vector *_s_clients = NULL;
+static Vector *_s_clients = NULL;
 static int _s_server_socket = -1;
 
 static Client* client_create(char *name, struct sockaddr_in *address)
