@@ -15,7 +15,6 @@
 #include "vector.h"
 
 #define DEBUG       1
-#define BUF_SIZE    1024
 #define SERVER_PORT 4040
 
 #define MAX_AMOUNT_CLIENTS FD_SETSIZE
@@ -234,7 +233,7 @@ void verificate_name(char **a_name)
     }
     if (was_used) {
         printf("%s", message);
-        printf("Client already exist. Set new name '%s'\n", *a_name, new_name);
+        printf("Client '%s' already exist. Set new name '%s'\n", *a_name, new_name);
     }
 }
 
@@ -275,7 +274,7 @@ void handle_client_command(ServerCommand a_cmd, char *a_data
         vector_foreach(_s_clients, message, send_broadcast_msg);
         break;
     default:
-        assert("Unknown command " == (char*)a_cmd);
+        assert("Unknown command " == NULL);
         break;
     }
 }
@@ -306,8 +305,8 @@ int receive_client_data(Client *a_client)
 
     straddr = inet_ntoa(a_client->address->sin_addr);
 
-    printf("From address '%s:%d' recived message '%s'\n", straddr
-                    , a_client->address->sin_port, buf);
+    printf("From address '%s:%d' recived size %d and message '%s'\n", straddr
+                    , a_client->address->sin_port, size_message, buf);
 
     client_cmd = parse_client_command(buf);
 

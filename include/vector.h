@@ -22,7 +22,6 @@ typedef struct Vector {
 
 Vector* vector_create(void);
 int vector_total(Vector *);
-static void vector_resize(Vector *, int);
 void vector_add(Vector *, void *);
 void vector_set(Vector *, int, void *);
 void *vector_get(Vector *, int);

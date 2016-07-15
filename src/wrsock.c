@@ -5,17 +5,20 @@
 #include <stdlib.h>
 #include <netdb.h>
 #include <string.h>
+#include <strings.h>
 #include <assert.h>
+#include <arpa/inet.h>
 
+#include "logger.h"
 #include "wrsock.h"
 
 struct connection {
     ConnectionType type;
-    struct sockaddr_in other_side;
+    struct sockaddr_in *other_side;
     int fd;
 };
 
-static socket_create(int type, char *name, int port)
+static int socket_create(int type, char *name, int port)
 {
     int sock = -1;
     struct sockaddr_in *adsock = address_create(name, port);
@@ -33,17 +36,17 @@ struct sockaddr_in *address_create(char *name, int port)
 {
     struct sockaddr_in *adsock = malloc(sizeof(*adsock));
     struct hostent *haddr = NULL;
-    struct in_addr **pptr = NULLs;
+    struct in_addr **pptr = NULL;
 
     bzero(adsock, sizeof(struct sockaddr_in));
 
     if (name) {
         haddr = gethostbyname(name);
-        if (haddr <= 0) {
-            perror("Unknown name of host.\n");
-        } else {
+        if (haddr) {
             pptr = (struct in_addr **) haddr->h_addr_list;
             memcpy(&adsock->sin_addr, *pptr, sizeof(struct in_addr));
+        } else {
+            perror("Unknown name of host.\n");
         }
     } else {
         adsock->sin_addr.s_addr = INADDR_ANY;
@@ -87,11 +90,12 @@ Connection* connection_create(ConnectionType type, char *name, int port)
         connection_destroy(conn);
         return NULL;
     }
-    if (bind(sock,(struct sockaddr *)adsock, sizeof(*adsock)) < 0) {
-        perror("Could not bind to socket.\n");
-        connection_destroy(conn);
-        return NULL;
-    }
+//    if (bind(conn->fd,(struct sockaddr *)conn->other_side, sizeof(struct sockaddr)) < 0) {
+//        perror("Could not bind to socket.\n");
+//        connection_destroy(conn);
+//        return NULL;
+//    }
+    assert(conn);
     return conn;
 }
 
@@ -124,19 +128,80 @@ Connection* connection_tcp_accept_client(int server_fd)
     return conn;
 }
 
-char* connection_get_address_str(Connection *conn)
+int connection_tcp_connect(Connection *conn)
 {
-    return inet_ntoa(conn->other_side.sin_addr);
+    assert(conn);
+    int res = connect(conn->fd, (struct sockaddr *)conn->other_side, sizeof(struct sockaddr_in));
+    if( res == -1) {
+       perror("Connect failed.\n");
+       return 1;
+    }
+    return 0;
 }
 
-char* connection_get_address(Connection *conn)
+int connection_tcp_send(Connection *conn, char *data, int len)
 {
-    return conn->other_side.sin_addr.s_addr;
+    assert(conn);
+    int res;
+    res = write(conn->fd, &len, sizeof(len));
+    if (res == -1) {
+        warn("Could not write length of data to server.");
+        return -1;
+    }
+    debug("Was wrote %d bytes to connection '%s:%d'.",
+                    res, connection_get_address_str(conn),
+                    connection_get_port(conn));
+    res = write(conn->fd, data, len);
+    if (res == -1) {
+        warn("Could not write to server.");
+        return -1;
+    }
+    debug("Was wrote %d bytes to connection '%s:%d'.",
+                    res, connection_get_address_str(conn),
+                    connection_get_port(conn));
+    return 0;
+}
+
+int connection_tcp_receive(Connection *conn, char *buf, size_t bufsize)
+{
+    int length = 0;
+    int res;
+
+    res = read(conn->fd, &length, sizeof (length));
+    if (res == -1) {
+        perror("Could not read data from connection.\n");
+        return -1;
+    } else if (res == 0) {
+        debug("Connection end '%s:%d'", connection_get_address_str(conn),
+                                        connection_get_port(conn));
+        return -1;
+    }
+    assert(length <= bufsize);
+    res = read(conn->fd, buf, length);
+    if (res == -1) {
+        perror("Could not read data from connection.\n");
+        return -1;
+    } else if (res == 0) {
+        debug("Connection end '%s:%d'", connection_get_address_str(conn),
+                                        connection_get_port(conn));
+        return -1;
+    }
+    return 0;
+}
+
+char* connection_get_address_str(Connection *conn)
+{
+    return inet_ntoa(conn->other_side->sin_addr);
+}
+
+in_addr_t connection_get_address(Connection* conn)
+{
+    return conn->other_side->sin_addr.s_addr;
 }
 
 int connection_get_port(Connection *conn)
 {
-    return conn->other_side.sin_port;
+    return conn->other_side->sin_port;
 }
 
 int connection_get_fd(Connection *conn)

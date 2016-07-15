@@ -3,6 +3,8 @@
 
 #include "vector.h"
 
+static void vector_resize(Vector *, int);
+
 Vector* vector_create(void)
 {
     Vector *v = malloc(sizeof(Vector));

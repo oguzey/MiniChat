@@ -19,8 +19,6 @@
 #include <assert.h>
 #include "wrsock.h"
 
-#define BUF_SIZE 512
-
 typedef enum {
     UNDEFINED = 0,
     CONNECT,
@@ -103,9 +101,8 @@ void send_message(char *message)
 static ClientCommand receive_user_data (struct conn_data **data, char *msg)
 {
     char buf[BUF_SIZE] = {0};
-	int taillemessage;
     ClientCommand cmd;
-    taillemessage = read(0, buf, BUF_SIZE);
+    read(0, buf, BUF_SIZE);
     cmd = parse_user_command(buf);
     *data = NULL;
     if (cmd == CONNECT) {

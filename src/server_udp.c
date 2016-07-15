@@ -27,7 +27,6 @@ Initial revision
 #include "vector.h"
 
 #define DEBUG       1
-#define BUF_SIZE    1024
 #define SERVER_PORT 4040
 
 typedef enum {
@@ -258,7 +257,7 @@ void handle_client_command(ServerCommand a_cmd, char *a_data
         vector_foreach(_s_clients, message, send_broadcast_msg);
         break;
     default:
-        assert("Unknown command " == (char*)a_cmd);
+        assert("Unknown command " == NULL);
         break;
     }
 }
