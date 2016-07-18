@@ -14,7 +14,7 @@
 
 #else
 
-#define info(format, ...) printf("info: [%s] : " format "\n", __func__,  ##__VA_ARGS__)
+#define info(format, ...) printf("info: [%s] : " format "\n", __func__, ##__VA_ARGS__)
 #define debug(format, ...) printf("debug: [%s:%d] : " format "\n", __func__, __LINE__,  ##__VA_ARGS__)
 #define warn(format, ...) printf("warn : " format "\n", ##__VA_ARGS__)
 

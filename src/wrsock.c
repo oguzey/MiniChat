@@ -162,6 +162,27 @@ int connection_tcp_send(Connection *conn, char *data, int len)
     return 0;
 }
 
+int connection_udp_send(Connection *conn, char *data, int len)
+{
+    int res = 0;
+    res = sendto (conn->fd, &len, sizeof (len), 0
+            , (struct sockaddr *) conn->other_side, sizeof (struct sockaddr));
+    debug("Send to udp connection: res '%d'", res);
+    sendto (conn->fd, data, len, 0, (struct sockaddr *) conn->other_side
+                                , sizeof (struct sockaddr));
+    debug("Send to udp connection: res '%d'", res);
+    return 0;
+}
+
+int connection_send(Connection *conn, char *data, int len)
+{
+    if (conn->type == TCP) {
+        return connection_tcp_send(conn, data, len);
+    } else {
+        return connection_udp_send(conn, data, len);
+    }
+}
+
 int connection_tcp_receive(Connection *conn, char *buf, size_t bufsize)
 {
     int length = 0;
@@ -189,6 +210,29 @@ int connection_tcp_receive(Connection *conn, char *buf, size_t bufsize)
     return 0;
 }
 
+int connection_udp_receive(Connection *conn, char *buf, size_t bufsize)
+{
+    int length = 0;
+    int res = 0;
+
+    //TODO: add check for address
+    res = recvfrom(conn->fd, &length, sizeof (length), 0, (struct sockaddr *)NULL, NULL);
+    debug("From udp connection receive res '%d'", res);
+    assert(length <= bufsize);
+    res = recvfrom (conn->fd, buf, length, 0, (struct sockaddr *) NULL, NULL);
+    debug("From udp connection receive res '%d'", res);
+    return 0;
+}
+
+int connection_receive(Connection *conn, char *buf, size_t bufsize)
+{
+    if (conn->type == TCP) {
+        return connection_tcp_receive(conn, buf, bufsize);
+    } else {
+        return connection_udp_receive(conn, buf, bufsize);
+    }
+}
+
 char* connection_get_address_str(Connection *conn)
 {
     return inet_ntoa(conn->other_side->sin_addr);
@@ -207,4 +251,9 @@ int connection_get_port(Connection *conn)
 int connection_get_fd(Connection *conn)
 {
     return conn->fd;
+}
+
+ConnectionType connection_get_type(Connection *conn)
+{
+    return conn->type;
 }

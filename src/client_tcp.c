@@ -75,12 +75,18 @@ static void handle_user_data(void)
     char *name = NULL;
 
     read_bytes = read(0, buf, BUF_SIZE);
+    assert(read_bytes < BUF_SIZE);
     if (read_bytes == -1) {
         warn("Could not read from STDIN data.");
         return;
     }
-    assert(read_bytes < BUF_SIZE);
-    buf[read_bytes] = '\0';
+    if (read_bytes == 1) {
+        /* read only LF symbol */
+        info("Could not send empty message.");
+        return;
+    }
+    /* remove last LF symbol readed from stdin */
+    buf[read_bytes - 1] = '\0';
 
     cmd = parse_user_command(buf);
     switch(cmd) {
@@ -97,18 +103,19 @@ static void handle_user_data(void)
             return;
         }
         _s_server_conn = connection_create(TCP, host, port);
-        res = connection_tcp_connect(_s_server_conn);
-        if (res) {
-            goto error;
+        if (connection_get_type(_s_server_conn) == TCP) {
+            res = connection_tcp_connect(_s_server_conn);
+            if (res) {
+                goto error;
+            }
         }
-        memset(buf, 0, BUF_SIZE);
         sprintf(buf, "_connect %s", name);
-        res = connection_tcp_send(_s_server_conn, buf, strlen(buf));
+        res = connection_send(_s_server_conn, buf, strlen(buf));
         if (res) {
             goto error;
         }
         debug("Message '%s' was sent to server.", buf);
-        info("Client was connected to '%s:%d'\n", host, port);
+        info("Client was connected to '%s:%d'.", host, port);
         free(host);
         free(name);
         fflush(stdout);
@@ -118,7 +125,7 @@ static void handle_user_data(void)
             info("Client has already disconnected.");
             break;
         }
-        connection_tcp_send(_s_server_conn, "_quit", strlen("_quit"));
+        connection_send(_s_server_conn, "_quit", strlen("_quit"));
         connection_destroy(_s_server_conn);
         _s_server_conn = NULL;
     break;
@@ -128,7 +135,7 @@ static void handle_user_data(void)
             break;
         }
         info("Client has already disconnected.");
-        res = connection_tcp_send(_s_server_conn, "_who", strlen("_who"));
+        res = connection_send(_s_server_conn, "_who", strlen("_who"));
         if (res) {
             goto error;
         }
@@ -139,13 +146,13 @@ static void handle_user_data(void)
             break;
         }
         /* just simple message. need to send to server */
-        res = connection_tcp_send(_s_server_conn, buf, read_bytes);
+        res = connection_send(_s_server_conn, buf, read_bytes);
         if (res) {
             goto error;
         }
     break;
     default:
-        assert("Unknown command\n" == NULL);
+        assert("Unknown command" == NULL);
     break;
     }
     return;
@@ -160,12 +167,13 @@ static void handle_server_data(void)
     int res;
     char buf[BUF_SIZE] = {0};
 
-    res = connection_tcp_receive(_s_server_conn, buf, BUF_SIZE);
+    res = connection_receive(_s_server_conn, buf, BUF_SIZE);
     if (res) {
         info("We lose server...");
         connection_destroy(_s_server_conn);
         _s_server_conn = NULL;
     }
+    info("server: '%s'", buf);
 }
 
 int main (int argc, char **argv)
@@ -182,7 +190,7 @@ int main (int argc, char **argv)
     FD_ZERO(&readf);
     while(1) {
         socket = 0;
-        FD_SET (0, &readf);
+        FD_SET(0, &readf);
         if (_s_server_conn) {
             socket = connection_get_fd(_s_server_conn);
             FD_SET(socket, &readf);
