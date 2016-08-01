@@ -3,8 +3,7 @@ include/wrsock_client_tcp.h
 include/wrsock_client_udp.h
 include/wrsock_server_tcp.h
 include/wrsock_server_udp.h
-src/client_tcp.c
-src/client_udp.c
+src/client.c
 src/server_tcp.c
 src/server_udp.c
 src/vector.c
