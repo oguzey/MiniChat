@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <assert.h>
 #include <errno.h>
+#include <getopt.h>
+#include <strings.h>
 
 #include "logger.h"
 #include "wrsock.h"
@@ -20,6 +22,7 @@ typedef enum {
 } ClientCommand;
 
 static Connection *_s_server_conn = NULL;
+static ConnectionType _s_con_type = -1;
 
 static ClientCommand parse_user_command(char *str)
 {
@@ -176,10 +179,51 @@ static void handle_server_data(void)
     info("server: '%s'", buf);
 }
 
+static void args_parse(int argc, char **argv)
+{
+
+#define print_help() \
+    info("\nUsage: \n\t%s -t <TYPE>\nwhere TYPE is one from UDP or TCP.", argv[0]);\
+    exit(EXIT_SUCCESS);
+
+    int c;
+    while ((c = getopt (argc, argv, "ht:")) != -1) {
+        switch (c) {
+        case 'h':
+            print_help();
+        break;
+        case 't':
+            if (strcasecmp(optarg, "tcp") == 0) {
+                _s_con_type = TCP;
+            } else if (strcasecmp(optarg, "udp") == 0) {
+                _s_con_type = UDP;
+            } else {
+                fatal("Option -t requires an argument. See help.");
+            }
+        break;
+        case '?':
+            warn("Bad option -%c provided.", optopt);
+            print_help();
+        break;
+        default:
+            print_help();
+        }
+    }
+}
+
 int main (int argc, char **argv)
 {
     fd_set readf;
     int socket;
+
+    args_parse(argc, argv);
+
+    assert(_s_con_type == TCP || _s_con_type == UDP);
+    if (_s_con_type == TCP) {
+        info("Client will use TCP protocol.");
+    } else {
+        info("Client will use UDP protocol.");
+    }
 
     info("Client started. Allowed commands:"
            "\n\t1) _connect name address port"

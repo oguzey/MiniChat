@@ -1,25 +1,31 @@
 #include <stdio.h>
+#include <stdarg.h>
+#include <stdlib.h>
 
-#define GREEN   "\e[01;32m"
-#define YELLOW  "\e[01;33m"
-#define RED     "\e[01;33m"
-// FIXME: set correct red color
-#define RESET_COLOR "\e[0m"
+#define GREEN   "\033[01;32m"
+#define YELLOW  "\033[01;33m"
+#define RED     "\033[01;31m"
+#define RESET_COLOR "\033[0m"
 #define PAINT(word, color) color word RESET_COLOR
 
+
+__attribute__((format(printf, 2, 3)))
+inline static void _log(const char *level, const char *format, ...)
+{
+    char buffer[2048] = {0};
+    va_list args;
+    va_start(args, format);
+    vsprintf(buffer, format, args);
+    printf("%s : %s\n", level, buffer);
+    va_end(args);
+}
+
+#define info(...) _log(PAINT("info", GREEN), __VA_ARGS__)
+#define warn(...) _log(PAINT("warn", RED), __VA_ARGS__)
+#define fatal(...) _log(PAINT("fatal", RED), __VA_ARGS__); exit(EXIT_FAILURE)
+
 #ifdef NDEBUG
-
-#define info(format, ...) printf(PAINT("info", GREEN) " : " format "\n", ##__VA_ARGS__)
 #define debug(format, ...)
-
 #else
-
-#define info(format, ...) printf("info: [%s] : " format "\n", __func__, ##__VA_ARGS__)
-#define debug(format, ...) printf("debug: [%s:%d] : " format "\n", __func__, __LINE__,  ##__VA_ARGS__)
-#define warn(format, ...) printf("warn : " format "\n", ##__VA_ARGS__)
-
-//#define info(format, ...) printf(PAINT("info", GREEN) " [%s] : " format "\n", __func__,  ##__VA_ARGS__)
-//#define debug(format, ...) printf(PAINT("debug", YELLOW) " [%s:%d] : " format "\n", __func__, __LINE__,  ##__VA_ARGS__)
-//#define warn(format, ...) printf(PAINT("warn", RED) " : " format "\n" ##__VA_ARGS__)
-
+#define debug(...) _log(PAINT("debug", YELLOW), __VA_ARGS__)
 #endif /* NDEBUG */
