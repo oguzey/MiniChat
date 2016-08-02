@@ -13,3 +13,4 @@ src/wrsock_server_udp.c
 include/wrsock.h
 src/wrsock.c
 include/logger.h
+src/server.c
