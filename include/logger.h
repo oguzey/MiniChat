@@ -16,8 +16,9 @@ inline static void _log(const char *level, const char *format, ...)
     va_list args;
     va_start(args, format);
     vsprintf(buffer, format, args);
-    printf("%s : %s\n", level, buffer);
+    fprintf(stdout, "%s : %s\n", level, buffer);
     va_end(args);
+    fflush(stdout);
 }
 
 #define info(...) _log(PAINT("info", GREEN), __VA_ARGS__)

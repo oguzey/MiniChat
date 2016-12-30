@@ -105,7 +105,7 @@ static void handle_user_data(void)
             free(name);
             return;
         }
-        _s_server_conn = connection_create(TCP, host, port);
+        _s_server_conn = connection_client_create(TCP, host, port, "127.0.0.1", 0);
         if (connection_get_type(_s_server_conn) == TCP) {
             res = connection_tcp_connect(_s_server_conn);
             if (res) {
@@ -183,7 +183,9 @@ static void args_parse(int argc, char **argv)
 {
 
 #define print_help() \
-    info("\nUsage: \n\t%s -t <TYPE>\nwhere TYPE is one from UDP or TCP.", argv[0]);\
+    fprintf(stdout, "Usage: %s\n"                                               \
+            "\t -t <TYPE> \t type of connection (UDP or TCP) (mandatory).\n",   \
+            argv[0]);                                                           \
     exit(EXIT_SUCCESS);
 
     int c;
@@ -218,11 +220,12 @@ int main (int argc, char **argv)
 
     args_parse(argc, argv);
 
-    assert(_s_con_type == TCP || _s_con_type == UDP);
     if (_s_con_type == TCP) {
         info("Client will use TCP protocol.");
-    } else {
+    } else if (_s_con_type == UDP) {
         info("Client will use UDP protocol.");
+    } else {
+        fatal("You should provide connection type.");
     }
 
     info("Client started. Allowed commands:"

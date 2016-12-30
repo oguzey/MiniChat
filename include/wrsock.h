@@ -18,15 +18,22 @@ typedef enum connection_type ConnectionType;
 typedef struct connection Connection;
 
 
-Connection* connection_create(ConnectionType type, char *name, int port);
+Connection* connection_client_create(ConnectionType type, char *other_host,
+                                     int other_port, char *my_host, int my_port);
+Connection *connection_server_create(ConnectionType type, char *host, int port,
+                                     unsigned int max_clients);
+Connection *connection_create_raw(ConnectionType type, int fd,
+                                  struct sockaddr_in *other_addr);
 void connection_destroy(Connection *connection);
-Connection* connection_tcp_accept_client(int server_fd);
+Connection* connection_tcp_accept(int server_fd);
 int connection_tcp_connect(Connection *conn);
-int connection_tcp_send(Connection *conn, char *data, int len);
-int connection_udp_send(Connection *conn, char *data, int len);
-int connection_send(Connection *conn, char *data, int len);
+int connection_tcp_send(Connection *conn, const char *data, int len);
+int connection_udp_send(Connection *conn, const char *data, int len);
+int connection_send(Connection *conn, const char *data, int len);
 int connection_tcp_receive(Connection *conn, char *buf, size_t bufsize);
 int connection_udp_receive(Connection *conn, char *buf, size_t bufsize);
+int connection_udp_receive_with_addr(Connection *conn, char *buf, size_t bufsize,
+                           struct sockaddr **addr);
 int connection_receive(Connection *conn, char *buf, size_t bufsize);
 char* connection_get_address_str(Connection *conn);
 in_addr_t connection_get_address(Connection *conn);
