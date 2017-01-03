@@ -159,6 +159,7 @@ Connection* connection_tcp_accept(int server_fd)
     conn->type = TCP;
     conn->fd = fd;
     conn->other_addr = address;
+    conn->my_addr = NULL; // TODO: set my address
     return conn;
 }
 
